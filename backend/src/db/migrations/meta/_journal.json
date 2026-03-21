@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1774045752306,
+      "tag": "0000_unusual_excalibur",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774051368736,
+      "tag": "0001_charming_famine",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774051900712,
+      "tag": "0002_talented_makkari",
+      "breakpoints": true
+    }
+  ]
+}
