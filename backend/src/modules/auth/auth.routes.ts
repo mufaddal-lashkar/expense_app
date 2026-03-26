@@ -57,7 +57,6 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
 
         const { email, password } = parsed.data;
 
-        // asResponse: true returns a Response object containing the Set-Cookie headers
         const response = await auth.api.signInEmail({
             body: { email, password },
             headers: request.headers,
@@ -88,7 +87,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         const { user, token } = responseData;
 
         if (!user || !token) {
-             throw Errors.internal("Failed to retrieve session data from response");
+            throw Errors.internal("Failed to retrieve session data from response");
         }
 
         const [membershipRow] = await db
@@ -125,6 +124,9 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
                         role: membershipRow.role,
                     }
                     : null,
+                session: {
+                    token: token,
+                }
             },
             "Logged in successfully"
         );
@@ -136,9 +138,9 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
             return ok(null, "Already logged out");
         }
 
-        const response = await auth.api.signOut({ 
+        const response = await auth.api.signOut({
             headers: request.headers,
-            asResponse: true 
+            asResponse: true
         });
 
         const setCookieHeader = response.headers.get("Set-Cookie");
