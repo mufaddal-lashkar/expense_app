@@ -95,7 +95,6 @@ export const aiRoutes = new Elysia({ prefix: "/expenses" })
     // GET /expenses/report/stream
     // Fetches org expenses, proxies SSE stream from AI service to frontend
     .get("/report/stream", async ({ query, currentOrgId, currentRole }) => {
-        console.log("Here")
         if (currentRole === "employee") throw Errors.forbidden();
 
         const month = query.month as string | undefined;
@@ -129,8 +128,6 @@ export const aiRoutes = new Elysia({ prefix: "/expenses" })
                     lte(expenses.createdAt, toDate)
                 )
             );
-        
-        console.log("Month Expenses :: ", monthExpenses)
 
         // Call AI service
         let aiResponse: Response;
