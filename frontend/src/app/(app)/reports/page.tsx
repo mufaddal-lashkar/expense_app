@@ -6,18 +6,26 @@ import { useSSEStream } from "@/hooks/useSSEStream";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
+import type { ReactNode } from "react";
 
 const MONTHS = Array.from({ length: 12 }, (_, i) => {
-    const d = new Date(2025, i, 1);
+    const base = new Date();
+    base.setDate(1); // 🔥 prevents month overflow bug
+    base.setMonth(base.getMonth() - i);
+
+    const month = String(base.getMonth() + 1).padStart(2, "0");
+    const year = base.getFullYear();
+
     return {
-        value: `2025-${String(i + 1).padStart(2, "0")}`,
-        label: d.toLocaleString("default", { month: "long", year: "numeric" }),
+        value: `${year}-${month}`,
+        label: base.toLocaleString("default", { month: "long", year: "numeric" }),
     };
 });
 
 export default function ReportsPage() {
     const { organization } = useAuthStore();
-    const [selectedMonth, setSelectedMonth] = useState(MONTHS[2]!.value);
+    const [selectedMonth, setSelectedMonth] = useState(MONTHS[0]!.value);
     const { data, isStreaming, error, startStream, stopStream } = useSSEStream();
 
     const handleGenerate = () => {
@@ -122,15 +130,26 @@ export default function ReportsPage() {
                     )}
 
                     {/* Report content */}
-                    <div className="p-6">
-                        <pre
-                            className={cn(
-                                "text-sm text-text-muted whitespace-pre-wrap leading-relaxed font-sans",
-                                isStreaming && "after:content-['▋'] after:animate-pulse after:text-accent"
-                            )}
+                    <div className="p-8 prose-custom">
+                        <ReactMarkdown
+                            components={{
+                                h1: ({ children }: { children?: ReactNode }) => <h1 className="text-3xl font-bold text-text mb-6 mt-2" style={{ fontFamily: 'var(--font-display)' }}>{children}</h1>,
+                                h2: ({ children }: { children?: ReactNode }) => <h2 className="text-xl font-semibold text-text mb-4 mt-8 border-b border-border pb-2 capitalize tracking-tight">{children}</h2>,
+                                h3: ({ children }: { children?: ReactNode }) => <h3 className="text-lg font-medium text-text mb-2 mt-6">{children}</h3>,
+                                p: ({ children }: { children?: ReactNode }) => <p className="mb-4 last:mb-0 text-text-muted leading-relaxed">{children}</p>,
+                                ul: ({ children }: { children?: ReactNode }) => <ul className="list-disc pl-5 mb-5 space-y-2">{children}</ul>,
+                                ol: ({ children }: { children?: ReactNode }) => <ol className="list-decimal pl-5 mb-5 space-y-2">{children}</ol>,
+                                li: ({ children }: { children?: ReactNode }) => <li className="text-text-muted text-sm">{children}</li>,
+                                strong: ({ children }: { children?: ReactNode }) => <strong className="text-accent font-semibold">{children}</strong>,
+                                hr: () => <hr className="my-8 border-border" />,
+                                blockquote: ({ children }: { children?: ReactNode }) => <blockquote className="border-l-2 border-accent pl-4 italic my-6 text-text-muted bg-surface-2/50 py-2 rounded-r-lg">{children}</blockquote>,
+                            }}
                         >
                             {data}
-                        </pre>
+                        </ReactMarkdown>
+                        {isStreaming && (
+                            <span className="inline-block w-2 h-4 ml-1 bg-accent/50 animate-pulse align-middle" />
+                        )}
                     </div>
                 </div>
             )}
